@@ -1,0 +1,21 @@
+{
+    "name": "dev.logilabo.camera_path_adapter.editor",
+    "rootNamespace": "",
+    "references": [
+        "dev.logilabo.camera_path_adapter.runtime",
+        "nadena.dev.ndmf",
+        "nadena.dev.modular-avatar.core",
+        "VirtualLens2.Runtime"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

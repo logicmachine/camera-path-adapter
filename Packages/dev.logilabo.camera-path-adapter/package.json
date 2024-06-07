@@ -1,0 +1,16 @@
+{
+  "name": "dev.logilabo.camera-path-adapter",
+  "displayName": "Camera Path Adapter",
+  "version": "0.0.1",
+  "unity": "2022.3",
+  "description": "Adapter for Camera Path System and VirtualLens2",
+  "author": {
+    "name": "logi",
+    "email": "ent@arrize.net",
+    "url": "https://logilabo.dev/"
+  },
+  "vpmDependencies": {
+    "nadena.dev.ndmf": ">=1.4.0 <2.0.0-a",
+    "nadena.dev.modular-avatar": ">=1.9.0 <2.0.0-a"
+  }
+}
