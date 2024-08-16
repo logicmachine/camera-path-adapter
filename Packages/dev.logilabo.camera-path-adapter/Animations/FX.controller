@@ -78,9 +78,9 @@ AnimatorStateTransition:
   m_PrefabAsset: {fileID: 0}
   m_Name: 
   m_Conditions:
-  - m_ConditionMode: 1
-    m_ConditionEvent: Replace
-    m_EventTreshold: 0
+  - m_ConditionMode: 3
+    m_ConditionEvent: CameraPathAdapter/Replace
+    m_EventTreshold: 0.5
   m_DstStateMachine: {fileID: 0}
   m_DstState: {fileID: 2951120725006663813}
   m_Solo: 0
@@ -291,9 +291,9 @@ AnimatorStateTransition:
   m_PrefabAsset: {fileID: 0}
   m_Name: 
   m_Conditions:
-  - m_ConditionMode: 2
-    m_ConditionEvent: Replace
-    m_EventTreshold: 0
+  - m_ConditionMode: 4
+    m_ConditionEvent: CameraPathAdapter/Replace
+    m_EventTreshold: 0.5
   m_DstStateMachine: {fileID: 0}
   m_DstState: {fileID: 3596854793790267198}
   m_Solo: 0
@@ -465,8 +465,8 @@ AnimatorController:
     m_DefaultInt: 0
     m_DefaultBool: 0
     m_Controller: {fileID: 0}
-  - m_Name: Replace
-    m_Type: 4
+  - m_Name: CameraPathAdapter/Replace
+    m_Type: 1
     m_DefaultFloat: 0
     m_DefaultInt: 0
     m_DefaultBool: 0
@@ -492,9 +492,9 @@ AnimatorStateTransition:
   m_PrefabAsset: {fileID: 0}
   m_Name: 
   m_Conditions:
-  - m_ConditionMode: 2
-    m_ConditionEvent: Replace
-    m_EventTreshold: 0
+  - m_ConditionMode: 4
+    m_ConditionEvent: CameraPathAdapter/Replace
+    m_EventTreshold: 0.5
   m_DstStateMachine: {fileID: 0}
   m_DstState: {fileID: 4264112954110580233}
   m_Solo: 0
@@ -520,9 +520,9 @@ AnimatorStateTransition:
   - m_ConditionMode: 2
     m_ConditionEvent: IsLocal
     m_EventTreshold: 0
-  - m_ConditionMode: 1
-    m_ConditionEvent: Replace
-    m_EventTreshold: 0
+  - m_ConditionMode: 3
+    m_ConditionEvent: CameraPathAdapter/Replace
+    m_EventTreshold: 0.5
   m_DstStateMachine: {fileID: 0}
   m_DstState: {fileID: -6433175014983512010}
   m_Solo: 0
@@ -755,9 +755,9 @@ AnimatorStateTransition:
   m_PrefabAsset: {fileID: 0}
   m_Name: 
   m_Conditions:
-  - m_ConditionMode: 1
-    m_ConditionEvent: Replace
-    m_EventTreshold: 0
+  - m_ConditionMode: 3
+    m_ConditionEvent: CameraPathAdapter/Replace
+    m_EventTreshold: 0.5
   m_DstStateMachine: {fileID: 0}
   m_DstState: {fileID: 2563458063764897265}
   m_Solo: 0
@@ -933,9 +933,9 @@ AnimatorStateTransition:
   - m_ConditionMode: 2
     m_ConditionEvent: IsLocal
     m_EventTreshold: 0
-  - m_ConditionMode: 2
-    m_ConditionEvent: Replace
-    m_EventTreshold: 0
+  - m_ConditionMode: 4
+    m_ConditionEvent: CameraPathAdapter/Replace
+    m_EventTreshold: 0.5
   m_DstStateMachine: {fileID: 0}
   m_DstState: {fileID: 9155371316332237296}
   m_Solo: 0
