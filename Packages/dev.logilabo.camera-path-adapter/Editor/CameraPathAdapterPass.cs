@@ -234,6 +234,7 @@ namespace dev.logilabo.camera_path_adapter.editor
 
         private static void ModifyCameraPath(CameraPathAdapter config)
         {
+            // Move camera object to override activeness
             var target = HierarchyUtility.PathToObject(config.cameraPathObject, "Bezie 2/Camera");
             if (config.enableLiveLink)
             {
@@ -248,6 +249,47 @@ namespace dev.logilabo.camera_path_adapter.editor
                 EditorUtility.CopySerialized(target.GetComponent<Camera>(), capture.AddComponent<Camera>());
             }
             Object.DestroyImmediate(target.GetComponent<Camera>());
+            
+            // Add animator controller to expose parameter `Replace`
+            var guid = "5f81635a3749ee847aa13694406f2e72";
+            var controllerPath = AssetDatabase.GUIDToAssetPath(guid);
+            var controller = AssetDatabase.LoadAssetAtPath<AnimatorController>(controllerPath);
+            foreach (var component in config.cameraPathObject.GetComponents<Component>())
+            {
+                var so = new SerializedObject(component);
+                if (so.targetObject.GetType().FullName != "VF.Model.VRCFury") { continue; }
+                var content = so.FindProperty("content");
+                if (content.propertyType != SerializedPropertyType.ManagedReference) { continue; }
+                if (content.managedReferenceValue.GetType().FullName != "VF.Model.Feature.FullController") { continue; }
+                {
+                    // Add controller
+                    var controllers = content.FindPropertyRelative("controllers");
+                    var index = controllers.arraySize;
+                    controllers.InsertArrayElementAtIndex(index);
+                    var item = controllers.GetArrayElementAtIndex(index);
+                    item.FindPropertyRelative("controller.version").intValue = 1;
+                    item.FindPropertyRelative("controller.fileID").longValue = 0;
+                    item.FindPropertyRelative("controller.id").stringValue = $"{guid}|{controllerPath}";
+                    item.FindPropertyRelative("controller.objRef").objectReferenceValue = controller;
+                    item.FindPropertyRelative("type").enumValueIndex = 5; // FX
+                }
+                {
+                    // Add global params
+                    var globalParams = content.FindPropertyRelative("globalParams");
+                    var index = globalParams.arraySize;
+                    globalParams.InsertArrayElementAtIndex(index);
+                    var item = globalParams.GetArrayElementAtIndex(index);
+                    item.stringValue = "CameraPathAdapter/Replace";
+                }
+                so.ApplyModifiedPropertiesWithoutUndo();
+                break;
+                // "controller.version": 1
+                // "controller.fileID": 0
+                // "controller.guid": empty?
+                // "controller.id": (char[])"<GUID>|<Path>"
+                // "controller.objRef": PPtr<$Object>
+                // "type": enum, 5
+            }
         }
 
         private static AnimationClip CreateControlClip(
