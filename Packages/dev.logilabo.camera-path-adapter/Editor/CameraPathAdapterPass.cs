@@ -283,12 +283,6 @@ namespace dev.logilabo.camera_path_adapter.editor
                 }
                 so.ApplyModifiedPropertiesWithoutUndo();
                 break;
-                // "controller.version": 1
-                // "controller.fileID": 0
-                // "controller.guid": empty?
-                // "controller.id": (char[])"<GUID>|<Path>"
-                // "controller.objRef": PPtr<$Object>
-                // "type": enum, 5
             }
         }
 
@@ -299,7 +293,7 @@ namespace dev.logilabo.camera_path_adapter.editor
             
             foreach (var renderer in config.cameraPathObject.GetComponentsInChildren<SkinnedMeshRenderer>(true))
             {
-                var shaderName = renderer.material.shader.name;
+                var shaderName = renderer?.material?.shader?.name;
                 if (shaderName is "Custom/OnlyCamera V2" or "Unlit/Path Camera")
                 {
                     clip.SetCurve(
