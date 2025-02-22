@@ -1,7 +1,7 @@
 {
   "name": "dev.logilabo.camera-path-adapter",
   "displayName": "Camera Path Adapter",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "unity": "2022.3",
   "description": "Adapter for Camera Path System and VirtualLens2",
   "author": {
