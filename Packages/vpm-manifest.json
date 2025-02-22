@@ -21,24 +21,24 @@
   },
   "locked": {
     "lyuma.av3emulator": {
-      "version": "3.4.5",
+      "version": "3.4.8",
       "dependencies": {
         "com.vrchat.avatars": "^3.1.0"
       }
     },
     "nadena.dev.ndmf": {
-      "version": "1.4.1",
+      "version": "1.6.8",
       "dependencies": {}
     },
     "nadena.dev.modular-avatar": {
-      "version": "1.9.13",
+      "version": "1.11.6",
       "dependencies": {
-        "com.vrchat.avatars": ">=3.4.0",
-        "nadena.dev.ndmf": ">=1.4.1 <2.0.0-a"
+        "com.vrchat.avatars": ">=3.7.4",
+        "nadena.dev.ndmf": ">=1.6.0 <2.0.0-a"
       }
     },
     "com.vrcfury.vrcfury": {
-      "version": "1.1002.0",
+      "version": "1.1187.0",
       "dependencies": {}
     },
     "com.vrchat.core.vpm-resolver": {
@@ -46,13 +46,13 @@
       "dependencies": {}
     },
     "com.vrchat.avatars": {
-      "version": "3.7.0-beta.2",
+      "version": "3.7.5",
       "dependencies": {
-        "com.vrchat.base": "3.7.0-beta.2"
+        "com.vrchat.base": "3.7.5"
       }
     },
     "com.vrchat.base": {
-      "version": "3.7.0-beta.2",
+      "version": "3.7.5",
       "dependencies": {}
     }
   }
