@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -8,6 +9,8 @@ using nadena.dev.ndmf;
 using UnityEditor;
 using UnityEditor.Animations;
 using VirtualLens2;
+using VRC.SDK3.Avatars.ScriptableObjects;
+using Object = UnityEngine.Object;
 
 namespace dev.logilabo.camera_path_adapter.editor
 {
@@ -232,25 +235,31 @@ namespace dev.logilabo.camera_path_adapter.editor
             }
         }
 
+        private static AnimatorController FilterAnimatorControllerLayer(AnimatorController controller,
+            Predicate<AnimatorControllerLayer> predicate)
+        {
+            var result = new AnimatorController();
+            result.parameters = controller.parameters;
+            foreach (var layer in controller.layers)
+            {
+                if (predicate(layer)) { result.AddLayer(layer); }
+            }
+            return result;
+        }
+
+        private static VRCExpressionsMenu FilterVRCExpressionsMenu(VRCExpressionsMenu menu,
+            Predicate<VRCExpressionsMenu.Control> predicate)
+        {
+            var result = Object.Instantiate(menu);
+            result.controls = result.controls.Where(control => predicate(control)).ToList();
+            return result;
+        }
+
         private static void ModifyCameraPath(CameraPathAdapter config)
         {
-            // Move camera object to override activeness
-            var target = HierarchyUtility.PathToObject(config.cameraPathObject, "Bezie 2/Camera");
-            if (config.enableLiveLink)
-            {
-                var capture = new GameObject
-                {
-                    name = "Capture",
-                    transform = { parent = target.transform }
-                };
-                capture.transform.localPosition = Vector3.zero;
-                capture.transform.localRotation = Quaternion.identity;
-                capture.transform.localScale = Vector3.one;
-                EditorUtility.CopySerialized(target.GetComponent<Camera>(), capture.AddComponent<Camera>());
-            }
-            Object.DestroyImmediate(target.GetComponent<Camera>());
-            
-            // Add animator controller to expose parameter `Replace`
+            // - Remove animator controller layer `Fov`
+            // - Add animator controller to expose parameter `Enable` and `Replace`
+            // - Remove menu item `Fov`
             var guid = "5f81635a3749ee847aa13694406f2e72";
             var controllerPath = AssetDatabase.GUIDToAssetPath(guid);
             var controller = AssetDatabase.LoadAssetAtPath<AnimatorController>(controllerPath);
@@ -262,24 +271,46 @@ namespace dev.logilabo.camera_path_adapter.editor
                 if (content.propertyType != SerializedPropertyType.ManagedReference) { continue; }
                 if (content.managedReferenceValue.GetType().FullName != "VF.Model.Feature.FullController") { continue; }
                 {
-                    // Add controller
                     var controllers = content.FindPropertyRelative("controllers");
-                    var index = controllers.arraySize;
-                    controllers.InsertArrayElementAtIndex(index);
-                    var item = controllers.GetArrayElementAtIndex(index);
-                    item.FindPropertyRelative("controller.version").intValue = 1;
-                    item.FindPropertyRelative("controller.fileID").longValue = 0;
-                    item.FindPropertyRelative("controller.id").stringValue = $"{guid}|{controllerPath}";
-                    item.FindPropertyRelative("controller.objRef").objectReferenceValue = controller;
-                    item.FindPropertyRelative("type").enumValueIndex = 5; // FX
+                    // Modify existing controller
+                    {
+                        var item = controllers.GetArrayElementAtIndex(0);
+                        var original =
+                            (AnimatorController)item.FindPropertyRelative("controller.objRef").objectReferenceValue;
+                        var filtered = FilterAnimatorControllerLayer(original, layer => layer.name != "Fov");
+                        item.FindPropertyRelative("controller.objRef").objectReferenceValue = filtered;
+                    }
+                    // Add controller
+                    {
+                        var index = controllers.arraySize;
+                        controllers.InsertArrayElementAtIndex(index);
+                        var item = controllers.GetArrayElementAtIndex(index);
+                        item.FindPropertyRelative("controller.version").intValue = 1;
+                        item.FindPropertyRelative("controller.fileID").longValue = 0;
+                        item.FindPropertyRelative("controller.id").stringValue = $"{guid}|{controllerPath}";
+                        item.FindPropertyRelative("controller.objRef").objectReferenceValue = controller;
+                        item.FindPropertyRelative("type").enumValueIndex = 5; // FX
+                    }
+                }
+                {
+                    // Modify existing menu item
+                    var menus = content.FindPropertyRelative("menus");
+                    var item = menus.GetArrayElementAtIndex(0);
+                    var original =
+                        (VRCExpressionsMenu)item.FindPropertyRelative("menu.objRef").objectReferenceValue;
+                    var filtered = FilterVRCExpressionsMenu(original, control => control.name != "Fov");
+                    item.FindPropertyRelative("menu.objRef").objectReferenceValue = filtered;
                 }
                 {
                     // Add global params
                     var globalParams = content.FindPropertyRelative("globalParams");
-                    var index = globalParams.arraySize;
-                    globalParams.InsertArrayElementAtIndex(index);
-                    var item = globalParams.GetArrayElementAtIndex(index);
-                    item.stringValue = "CameraPathAdapter/Replace";
+                    foreach (var name in new[] { "Enable", "Replace" })
+                    {
+                        var index = globalParams.arraySize;
+                        globalParams.InsertArrayElementAtIndex(index);
+                        var item = globalParams.GetArrayElementAtIndex(index);
+                        item.stringValue = $"CameraPathAdapter/{name}";
+                    }
                 }
                 so.ApplyModifiedPropertiesWithoutUndo();
                 break;
@@ -321,13 +352,17 @@ namespace dev.logilabo.camera_path_adapter.editor
 
             if (config.enableLiveLink)
             {
-                var captureObject = HierarchyUtility.PathToObject(config.cameraPathObject, "Bezie 2/Camera/Capture");
-                clip.SetCurve(
-                    HierarchyUtility.RelativePath(context.AvatarRootObject, captureObject),
-                    typeof(Camera), "m_Enabled",
-                    new AnimationCurve(new Keyframe(0.0f, replace ? 1.0f : 0.0f)));
+                var captureRoot = HierarchyUtility.PathToObject(config.cameraPathObject, "Bezie 2/Camera");
+                var captureObjects = captureRoot.GetComponentsInChildren<Camera>(true);
+                foreach (var captureObject in captureObjects)
+                {
+                    clip.SetCurve(
+                        HierarchyUtility.RelativePath(context.AvatarRootObject, captureObject.gameObject),
+                        typeof(Camera), "m_Enabled",
+                        new AnimationCurve(new Keyframe(0.0f, replace ? 1.0f : 0.0f)));
+                }
             }
-            
+
             return clip;
         }
         
@@ -366,16 +401,20 @@ namespace dev.logilabo.camera_path_adapter.editor
             }
 
             var clip = new AnimationClip();
-            var captureObject = HierarchyUtility.PathToObject(config.cameraPathObject, "Bezie 2/Camera/Capture");
             var keyframes = new List<Keyframe>();
             for (int i = 0; i <= numZoomSteps; ++i)
             {
                 keyframes.Add(new Keyframe(i, values[i]));
             }
-            clip.SetCurve(
-                HierarchyUtility.RelativePath(context.AvatarRootObject, captureObject),
-                typeof(Camera), "field of view",
-                new AnimationCurve(keyframes.ToArray()));
+            var captureRoot = HierarchyUtility.PathToObject(config.cameraPathObject, "Bezie 2/Camera");
+            var captureObjects = captureRoot.GetComponentsInChildren<Camera>(true);
+            foreach (var captureObject in captureObjects)
+            {
+                clip.SetCurve(
+                    HierarchyUtility.RelativePath(context.AvatarRootObject, captureObject.gameObject),
+                    typeof(Camera), "field of view",
+                    new AnimationCurve(keyframes.ToArray()));
+            }
 
             return clip;
         }
