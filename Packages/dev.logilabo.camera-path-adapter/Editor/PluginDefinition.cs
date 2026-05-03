@@ -1,4 +1,5 @@
 using nadena.dev.ndmf;
+using nadena.dev.ndmf.animator;
 
 [assembly: ExportsPlugin(typeof(dev.logilabo.camera_path_adapter.editor.PluginDefinition))]
 
@@ -14,7 +15,10 @@ namespace dev.logilabo.camera_path_adapter.editor
         {
             InPhase(BuildPhase.Generating)
                 .BeforePlugin("dev.logilabo.virtuallens2.apply-non-destructive")
-                .Run(CameraPathAdapterPass.Instance);
+                .WithRequiredExtension(typeof(VirtualControllerContext), sequence =>
+                {
+                    sequence.Run(CameraPathAdapterPass.Instance);
+                });
         }
     }
 }
